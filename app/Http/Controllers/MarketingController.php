@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Promo;
+use App\Models\DetailSales;
+use App\Models\User;
+use Session;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class MarketingController extends Controller
@@ -17,6 +20,8 @@ class MarketingController extends Controller
 
     public function program()
     {
+        // $user= Session::get('username');
+        // dd($user);
         return view('marketing.ListPromo');
     }
 
@@ -125,18 +130,97 @@ class MarketingController extends Controller
         return $this->sendResponse($promo, 'Berhasil');
     }
 
-    public function paketLayanan()
-    {
-        
-    }
-
-    public function customer()
-    {
-        
-    }
-
     public function sales()
     {
-        
+        return view('marketing.ListSales');
+    }
+
+    public function formSales(Request $request)
+    {
+        // $a = explode('/',\Request::getRequestUri());
+        // // $b = end($a);
+        // // dd($b);die;
+        // $ID = end($a)??0;
+        // $data = array();
+        // if ($ID != 0 && $ID != null) {
+        //     $detSales = DetailSales::find($ID);
+        //     array_push($data, $detSales);
+        // }
+        return view('marketing.FormSales');
+    }
+
+    public function getSales()
+    {
+        $draw = isset($_REQUEST['draw']) ? $_REQUEST['draw'] : 1;
+        $start = isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+        $length = isset($_REQUEST['length']) ? $_REQUEST['length'] : 10;
+        $search = isset($_REQUEST['search']['value']) ? $_REQUEST['search']['value'] : '';
+
+        $sorting_column = isset($_REQUEST['order'][0]['column']) ? $_REQUEST['order'][0]['column'] : 0;
+        $sorting_type = isset($_REQUEST['order'][0]['dir']) ? $_REQUEST['order'][0]['dir'] : 'desc';
+
+        $columnSort = ["id","username","name","email"];
+
+        $detailSales = User::whereRaw("level = 0");
+        if($search != '') {
+            $detailSales = $detailSales->orWhereRaw("lower(username) like '%".strtolower($search)."%'")
+            // ->orWhereRaw("lower(deskripsi) like '%".strtolower($search)."%'")
+            ->orWhereRaw("lower(name) like '%".strtolower($search)."%'")
+            ->orWhereRaw("lower(email) like '%".strtolower($search)."%'");
+       }
+       $detailSales = $detailSales->orderBy($columnSort[$sorting_column], $sorting_type)
+        ->get();
+        $getdetailSales = $detailSales->skip($start)->take($length);
+        $arr = array();
+        $no = 1;
+        foreach ($getdetailSales as $key => $value) {
+            $arrTemp = array();
+            $arrTemp[] = $no++;
+            $arrTemp[] = $value->name;
+            // $arrTemp[] = $value->deskripsi;
+            $arrTemp[] = $value->username;
+            $arrTemp[] = $value->email;
+            $arrTemp[] = 'Sales';
+            array_push($arr, $arrTemp);
+        }
+        $countData = $detailSales->count();
+        $data = [
+            'data' => $arr,
+            'recordsFiltered' => $getdetailSales->count() ?? 0,
+            'recordsTotal' => $countData ?? 0,
+            'colomn_sort' => "",
+            'params_arr' => "",
+            'sql' => "",
+            'arr_show' => "",
+            'draw' => $draw,
+            'start_from' => $start,
+        ];
+        return json_encode($data);
+    }
+
+    public function saveSales(Request $request)
+    {
+        // dd($request);
+        // $ID = $request->ID??0;
+        // if ($ID != 0) {
+        //     $sales = User::find($ID);
+        // }else{
+            $sales = User::create();
+        // }
+        $sales->name = $request->nama;
+        $sales->username = $request->username;
+        $sales->level = 0;
+        $sales->email = $request->email;
+        $sales->password = bcrypt($request->password);
+        $sales->save();
+
+        // $detailSales = DetailSales::create();
+        // $detailSales->alamat = $request->alamat;
+        // $detailSales->no_hp = $request->no_hp;
+        // $detailSales->jenis = $request->jenis;
+        // $detailSales->users_id = $sales->id;
+        // $detailSales->save();
+
+        return $this->sendResponse($sales, 'Berhasil');
     }
 }

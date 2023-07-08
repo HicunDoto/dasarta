@@ -17,23 +17,19 @@ use App\Http\Controllers\SalesController;
 */
 
 
-
 Route::get('/login',[LoginController::class,'home'])->name('login');
-Route::post('/login',[LoginController::class,'login'])->name('post.login');
-Route::get('/logout',[LoginController::class,'logout'])->name('logout');
 
 // Route::get('/program',[MarketingController::class,'program'])->name('program');
 // Route::post('/program',[MarketingController::class,'saveProgram'])->name('saveProgram');
-Route::get('/program',[MarketingController::class,'program'])->name('program');
-Route::get('/addprogram',[MarketingController::class,'formProgram'])->name('addProgram');
-Route::get('/editprogram/{id}',[MarketingController::class,'formProgram'])->name('editProgram');
 
 Route::group(['middleware'=>['marketing']], function(){
-    Route::get('/', function () {
-        return view('index');
-    });
+    Route::get('/program',[MarketingController::class,'program'])->name('program');
+    Route::get('/addprogram',[MarketingController::class,'formProgram'])->name('addProgram');
+    Route::get('/editprogram/{id}',[MarketingController::class,'formProgram'])->name('editProgram');
+    Route::get('/addsales',[MarketingController::class,'formSales'])->name('addSales');
+    Route::get('/sales',[MarketingController::class,'sales'])->name('sales');
 });
 
 Route::group(['middleware'=>['sales']], function(){
-
+    Route::get('/customer',[MarketingController::class,'index'])->name('indexSales');
 });

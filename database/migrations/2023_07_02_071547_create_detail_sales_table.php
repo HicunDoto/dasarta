@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('detail_sales', function (Blueprint $table) {
             $table->id();
+            $table->longText('alamat');
+            $table->string('no_hp');
+            $table->integer('jenis'); // 0 = cewek, 1 = cowok
+            $table->bigInteger('users_id')->unsigned();
+            $table->foreign('users_id')->references('id')->on('users')->onDelete('CASCADE')->onUpdate('CASCADE');
             $table->timestamps();
         });
     }

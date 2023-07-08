@@ -18,12 +18,11 @@ class Marketing
     {
         if ( ! auth()->user() ){
             return redirect('/login')->with('status', 'Mohon Login Terlebih Dahulu!');; 
-        }
-        elseif(auth()->user()->level == "Marketing"){
+        }elseif(auth()->user()->level != "1"){
             //dd($request->all());
-            return $next($request);
-        }else{
             return redirect('/dashboard'); 
+        }else{
+            return $next($request);
         }
     }
 }

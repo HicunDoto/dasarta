@@ -18,12 +18,11 @@ class Sales
     {
         if ( ! auth()->user() ){
             return redirect('/login')->with('status', 'Mohon Login Terlebih Dahulu!');; 
-        }
-        elseif(auth()->user()->level == "Sales"){
+        }elseif(auth()->user()->level != "0"){
             //dd($request->all());
-            return $next($request);
+            return redirect('/program'); 
         }else{
-            return redirect('/admin'); 
+            return $next($request);
         }
     }
 }
