@@ -30,14 +30,14 @@ class MarketingController extends Controller
         $sorting_column = isset($_REQUEST['order'][0]['column']) ? $_REQUEST['order'][0]['column'] : 0;
         $sorting_type = isset($_REQUEST['order'][0]['dir']) ? $_REQUEST['order'][0]['dir'] : 'desc';
 
-        $columnSort = ["id","nama","deskripsi","masa_aktif","potongan_harga","aktif"];
+        $columnSort = ["id","nama","masa_aktif","potongan_harga","aktif"];
 
         DB::table('promo')
                 ->where('masa_aktif', '<', date('Y-m-d'))
                 ->update(['status' => '0']);
 
         $promo = Promo::whereRaw("lower(nama) like '%".strtolower($search)."%'")
-        ->orWhereRaw("lower(deskripsi) like '%".strtolower($search)."%'")
+        // ->orWhereRaw("lower(deskripsi) like '%".strtolower($search)."%'")
         ->orWhereRaw("lower(masa_aktif) like '%".strtolower($search)."%'")
         ->orWhereRaw("lower(potongan_harga) like '%".strtolower($search)."%'")
         ->orWhereRaw("lower(status) like '%".strtolower($search)."%' ")
@@ -47,15 +47,19 @@ class MarketingController extends Controller
         $arr = array();
         foreach ($getPromo as $key => $value) {
             $arrTemp = array();
-            $arrTemp[] = '<div><a href ="editprogram/'.$value->id.'">Edit</a></div>';
+            $arrTemp[] = '<div><a class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" href ="/editprogram/'.$value->id.'">Edit</a></div><input class="valueID" type="text" value="'.$value->id.'" hidden>';
             $arrTemp[] = $value->nama;
-            $arrTemp[] = $value->deskripsi;
+            // $arrTemp[] = $value->deskripsi;
             $arrTemp[] = $value->masa_aktif;
             $arrTemp[] = $value->potongan_harga;
             if ($value->status == 1) {
-                $arrTemp[] = 'Aktif';
+                $arrTemp[] = '<label class="relative inline-flex items-center cursor-pointer"><input id="checked-status" type="checkbox" class="sr-only peer" checked>
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div></label>';
+                // $arrTemp[] = 'Aktif';
             }else{
-                $arrTemp[] = 'Tidak Aktif';
+                $arrTemp[] = '<label class="relative inline-flex items-center cursor-pointer"><input id="checked-status" type="checkbox" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div></label>';
+                // $arrTemp[] = 'Tidak Aktif';
             }
             array_push($arr, $arrTemp);
         }
@@ -94,14 +98,28 @@ class MarketingController extends Controller
         $ID = $request->ID??0;
         if ($ID != 0) {
             $promo = Promo::find($ID);
+            $promo->status = $request->status??1;
         }else{
             $promo = Promo::create();
+            $promo->status = 1;
         }
         $promo->nama = $request->nama;
         $promo->deskripsi = $request->deskripsi;
         $promo->masa_aktif = date('Y-m-d',strtotime($request->masa_aktif));
         $promo->potongan_harga = $request->potongan_harga;
-        $promo->status = $request->status??1;
+        $promo->save();
+
+        return $this->sendResponse($promo, 'Berhasil');
+    }
+
+    public function saveStatus(Request $request)
+    {
+        // dd($request);
+        $ID = $request->ID??0;
+        if ($ID != 0) {
+            $promo = Promo::find($ID);
+        }
+        $promo->status = $request->status;
         $promo->save();
 
         return $this->sendResponse($promo, 'Berhasil');

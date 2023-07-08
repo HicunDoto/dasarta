@@ -1,32 +1,27 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" >
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link  href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
-<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-  @vite('resources/css/app.css')
-</head>
-<body>
+@extends('templates.sidebar')
+
+@section('title','Paket')
+
+@section('container')
+<h3 class="mb-4 text-4xl font-extrabold leading-none tracking-tight">List Paket</h3>
+<a href="{{ url('/addprogram') }}" class="btn-tambah-paket focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Tambah Paket</a>
   <table id="table" class="table-fixed">
     <thead>
       <tr>
         {{-- <th>Action</th> --}}
         <th>Aksi</th>
         <th>Nama</th>
-        <th>Deskripsi</th>
+        {{-- <th>Deskripsi</th> --}}
         <th>Masa Aktif</th>
-        <th>Potongan Harga</th>
+        <th>Harga Paket</th>
         <th>Status</th>
       </tr>
     </thead>
     
   </table>
-</body>
 <script>
+    var getID = 0;
+    // console.log($('.idpromo').data('id'))
     $(document).ready( function () {
         $.ajaxSetup({
             headers: {
@@ -34,28 +29,65 @@
             }
         });
         $('#table').DataTable({
-            responsive: false,
+            responsive: true,
             processing: false,
             serverSide: true,
             ordering: true,
-            scrollY: 400,
             scrollX: true,
+            sScrollXInner: "100%",
             scrollCollapse: true,
             fixedColumns: true,
+            fixedHeader: true,
             ajax: {
                 url : "{{route('getProgram')}}",
                 data : function (d) {
                     
                 },
             },
-            order: [[0, 'desc']],
+            order: [
+                // [0, 'desc']
+            ],
             deferRender : true,
             columnDefs : [
                 {
-                    "targets" : [0,1,2,3,4,5],
+                    "orderable" : false,
+                    "targets" : [0,4],
                 }
             ]
         });
     });
+
+    $(document).on('click', '#checked-status',function(){
+    let checkboxStatus = 0;
+      if ($(this).is(':checked')) {
+          checkboxStatus = 1;
+      }
+      getID = $(this).parents('tr').find('.valueID').val()
+      $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': '{{csrf_token()}}'
+            }
+        });
+        $.ajax({
+            type: 'POST',
+            url: "{{route('saveStatus')}}",
+            data: {
+                ID : getID,
+                status: checkboxStatus
+            },
+            dataType: 'json',
+            success: function(data) {
+                alert('data berhasil disimpan');
+                if(data.message == 'Berhasil'){
+                    window.location.href = `{{ url('/program') }}`
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+
+        })
+    });
 </script>
-</html>
+
+@endsection

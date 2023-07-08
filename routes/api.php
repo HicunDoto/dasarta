@@ -19,6 +19,7 @@ use App\Http\Controllers\SalesController;
 
 Route::get('/getProgram',[MarketingController::class,'getProgram'])->name('getProgram');
 Route::post('/program',[MarketingController::class,'saveProgram'])->name('saveProgram');
+Route::post('/saveStatus',[MarketingController::class,'saveStatus'])->name('saveStatus');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
