@@ -218,12 +218,6 @@ class MarketingController extends Controller
         $sales->password = bcrypt($request->password);
         $sales->save();
 
-        // $detailSales = DetailSales::create();
-        // $detailSales->alamat = $request->alamat;
-        // $detailSales->no_hp = $request->no_hp;
-        // $detailSales->jenis = $request->jenis;
-        // $detailSales->users_id = $sales->id;
-        // $detailSales->save();
 
         return $this->sendResponse($sales, 'Berhasil');
     }
