@@ -22,8 +22,14 @@ Route::post('/program',[MarketingController::class,'saveProgram'])->name('savePr
 Route::post('/saveStatus',[MarketingController::class,'saveStatus'])->name('saveStatus');
 Route::post('/sales',[MarketingController::class,'saveSales'])->name('saveSales');
 Route::get('/getSales',[MarketingController::class,'getSales'])->name('getSales');
+
 Route::post('/login',[LoginController::class,'login'])->name('postLogin');
 Route::get('/logout',[LoginController::class,'logout'])->name('logout');
+
+Route::post('/saveCustomer',[SalesController::class,'saveCustomer'])->name('saveCustomer');
+Route::post('/savePassword',[SalesController::class,'savePassword'])->name('savePassword');
+Route::get('/deleteCustomer',[SalesController::class,'deleteCustomer'])->name('deleteCustomer');
+Route::get('/getCustomer',[SalesController::class,'getCustomer'])->name('getCustomer');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

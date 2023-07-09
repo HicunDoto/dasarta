@@ -31,5 +31,8 @@ Route::group(['middleware'=>['marketing']], function(){
 });
 
 Route::group(['middleware'=>['sales']], function(){
-    Route::get('/customer',[MarketingController::class,'index'])->name('indexSales');
+    Route::get('/customer',[SalesController::class,'customer'])->name('customer');
+    Route::get('/addcustomer',[SalesController::class,'formCustomer'])->name('addCustomer');
+    Route::get('/editcustomer/{id}',[SalesController::class,'formCustomer'])->name('editCustomer');
+    Route::get('/updatepassword/{id}',[SalesController::class,'updatePassword'])->name('updatePassword');
 });

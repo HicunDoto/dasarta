@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Promo;
-use App\Models\DetailSales;
+use App\Models\Paket;
 use App\Models\User;
+use App\Models\Customer;
+use App\Models\Penjualan;
+use App\Models\DetailSales;
 use Session;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Support\Facades\Validator;
+use Mpdf\Mpdf;
+use Mpdf\Output\Destination;
 
 class MarketingController extends Controller
 {
@@ -37,18 +42,18 @@ class MarketingController extends Controller
 
         $columnSort = ["id","nama","masa_aktif","potongan_harga","aktif"];
 
-        DB::table('promo')
+        DB::table('paket')
                 ->where('masa_aktif', '<', date('Y-m-d'))
                 ->update(['status' => '0']);
 
-        $promo = Promo::whereRaw("lower(nama) like '%".strtolower($search)."%'")
+        $paket = Paket::whereRaw("lower(nama) like '%".strtolower($search)."%'")
         // ->orWhereRaw("lower(deskripsi) like '%".strtolower($search)."%'")
         ->orWhereRaw("lower(masa_aktif) like '%".strtolower($search)."%'")
         ->orWhereRaw("lower(potongan_harga) like '%".strtolower($search)."%'")
         ->orWhereRaw("lower(status) like '%".strtolower($search)."%' ")
         ->orderBy($columnSort[$sorting_column], $sorting_type)
         ->get();
-        $getPromo = $promo->skip($start)->take($length);
+        $getPromo = $paket->skip($start)->take($length);
         $arr = array();
         foreach ($getPromo as $key => $value) {
             $arrTemp = array();
@@ -68,7 +73,7 @@ class MarketingController extends Controller
             }
             array_push($arr, $arrTemp);
         }
-        $countData = $promo->count();
+        $countData = $paket->count();
         $data = [
             'data' => $arr,
             'recordsFiltered' => $getPromo->count() ?? 0,
@@ -91,8 +96,8 @@ class MarketingController extends Controller
         $ID = end($a)??0;
         $data = array();
         if ($ID != 0 && $ID != null) {
-            $promo = Promo::find($ID);
-            array_push($data, $promo);
+            $paket = Paket::find($ID);
+            array_push($data, $paket);
         }
         return view('marketing.FormPromo',compact('data'));
     }
@@ -102,17 +107,17 @@ class MarketingController extends Controller
         // dd($request);
         $ID = $request->ID??0;
         if ($ID != 0) {
-            $promo = Promo::find($ID);
-            $promo->status = $request->status??1;
+            $paket = Paket::find($ID);
+            $paket->status = $request->status??1;
         }else{
-            $promo = Promo::create();
-            $promo->status = 1;
+            $paket = Paket::create();
+            $paket->status = 1;
         }
-        $promo->nama = $request->nama;
-        $promo->deskripsi = $request->deskripsi;
-        $promo->masa_aktif = date('Y-m-d',strtotime($request->masa_aktif));
-        $promo->potongan_harga = $request->potongan_harga;
-        $promo->save();
+        $paket->nama = $request->nama;
+        $paket->deskripsi = $request->deskripsi;
+        $paket->masa_aktif = date('Y-m-d',strtotime($request->masa_aktif));
+        $paket->potongan_harga = $request->potongan_harga;
+        $paket->save();
 
         return $this->sendResponse($promo, 'Berhasil');
     }
@@ -122,12 +127,12 @@ class MarketingController extends Controller
         // dd($request);
         $ID = $request->ID??0;
         if ($ID != 0) {
-            $promo = Promo::find($ID);
+            $paket = Paket::find($ID);
         }
-        $promo->status = $request->status;
-        $promo->save();
+        $paket->status = $request->status;
+        $paket->save();
 
-        return $this->sendResponse($promo, 'Berhasil');
+        return $this->sendResponse($paket, 'Berhasil');
     }
 
     public function sales()
@@ -222,5 +227,33 @@ class MarketingController extends Controller
         // $detailSales->save();
 
         return $this->sendResponse($sales, 'Berhasil');
+    }
+
+    public function exportPDF()
+    {
+        $mpdf = new Mpdf([
+            'orientation' => 'L'
+        ]);
+
+        $html = '<p align="center"><b>Export Data ALL Sales</b></p>';
+        $html .= '<br>';
+        $html .= '<table>';
+        $html .= '<tbody>';
+
+        $html .= '<tr>';
+        $get = Penjualan::get();
+        foreach ($get as $key => $value) {
+            $html .= '<td>'.$value->customer->nama.'</td>';
+            $html .= '<td>'.$value->customer->nik.'</td>';
+        }
+        $html .= '</tr>';
+
+        $html .= '</tbody></table>';
+
+        //write content
+        $mpdf->WriteHTML($html);
+
+        //return the PDF for download
+        return $mpdf->Output('data.pdf', 'd');
     }
 }

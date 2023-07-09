@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('penjualan', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('paket_id')->references('id')->on('paket')->onDelete('cascade')->nullable();
+            $table->bigInteger('customer_id')->unsigned();
+            $table->foreign('customer_id')->nullable()->references('id')->on('customer')->onDelete('CASCADE')->onUpdate('CASCADE');
+            $table->bigInteger('sales_id')->unsigned();
+            $table->foreign('sales_id')->nullable()->references('id')->on('users')->onDelete('CASCADE')->onUpdate('CASCADE');
             $table->timestamps();
         });
     }

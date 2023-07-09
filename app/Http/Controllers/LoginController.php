@@ -38,11 +38,13 @@ class LoginController extends Controller
             if (auth()->user()->level == "1") {
                 Session::put('username', $user->username);
                 Session::put('level', $user->level);
+                Session::put('id', $user->id);
                 return $this->sendResponse('admin', 'Berhasil');
                 // return redirect()->route('program')->with('marketing', 'Selamat Datang marketing');
             }else{
                 Session::put('username', $user->username);
                 Session::put('level', $user->level);
+                Session::put('id', $user->id);
                 return $this->sendResponse('sales', 'Berhasil');
                 // return redirect()->route('sales')->with('status', 'Selamat Datang Sales');
             }

@@ -74,7 +74,7 @@
                 }
             },
             error: function(data) {
-                console.log(data);
+                alert('Username/Password Salah!')
             }
 
         })
