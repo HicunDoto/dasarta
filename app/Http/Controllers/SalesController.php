@@ -124,7 +124,7 @@ class SalesController extends Controller
 
         $columnSort = ["id","username","name","email"];
 
-        $detailSales = Penjualan::with('customer')->with('paket')->with('sales');
+        $detailSales = Penjualan::with('customer')->with('paket')->with('sales')->whereRaw("sales_id =".Session::get('id'));
         if($search != '') {
             $detailSales = $detailSales->orWhereRaw("lower(username) like '%".strtolower($search)."%'")
             // ->orWhereRaw("lower(deskripsi) like '%".strtolower($search)."%'")

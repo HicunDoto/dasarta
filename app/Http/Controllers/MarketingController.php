@@ -12,8 +12,7 @@ use App\Models\DetailSales;
 use Session;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Support\Facades\Validator;
-use Mpdf\Mpdf;
-use Mpdf\Output\Destination;
+use PDF;
 
 class MarketingController extends Controller
 {
@@ -119,7 +118,7 @@ class MarketingController extends Controller
         $paket->potongan_harga = $request->potongan_harga;
         $paket->save();
 
-        return $this->sendResponse($promo, 'Berhasil');
+        return $this->sendResponse($paket, 'Berhasil');
     }
 
     public function saveStatus(Request $request)
@@ -231,29 +230,16 @@ class MarketingController extends Controller
 
     public function exportPDF()
     {
-        $mpdf = new Mpdf([
-            'orientation' => 'L'
-        ]);
-
-        $html = '<p align="center"><b>Export Data ALL Sales</b></p>';
-        $html .= '<br>';
-        $html .= '<table>';
-        $html .= '<tbody>';
-
-        $html .= '<tr>';
-        $get = Penjualan::get();
-        foreach ($get as $key => $value) {
-            $html .= '<td>'.$value->customer->nama.'</td>';
-            $html .= '<td>'.$value->customer->nik.'</td>';
-        }
-        $html .= '</tr>';
-
-        $html .= '</tbody></table>';
-
-        //write content
-        $mpdf->WriteHTML($html);
-
-        //return the PDF for download
-        return $mpdf->Output('data.pdf', 'd');
+        $get = Penjualan::orderBy('ID','DESC')->get();
+  
+        $data = [
+            'title' => 'Data Customer',
+            'date' => date('d/m/Y'),
+            'data' => $get
+        ]; 
+            
+        $pdf = PDF::loadView('marketing.exportpdf', $data);
+     
+        return $pdf->download('datacustomer.pdf');
     }
 }

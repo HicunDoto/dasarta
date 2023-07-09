@@ -28,6 +28,7 @@ Route::group(['middleware'=>['marketing']], function(){
     Route::get('/editprogram/{id}',[MarketingController::class,'formProgram'])->name('editProgram');
     Route::get('/addsales',[MarketingController::class,'formSales'])->name('addSales');
     Route::get('/sales',[MarketingController::class,'sales'])->name('sales');
+    Route::get('/exportPDF',[MarketingController::class,'exportPDF'])->name('exportPDF');
 });
 
 Route::group(['middleware'=>['sales']], function(){
