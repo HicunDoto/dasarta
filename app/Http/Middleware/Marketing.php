@@ -17,10 +17,10 @@ class Marketing
     public function handle(Request $request, Closure $next)
     {
         if ( ! auth()->user() ){
-            return redirect('/login')->with('status', 'Mohon Login Terlebih Dahulu!');; 
+            return redirect('/')->with('status', 'Mohon Login Terlebih Dahulu!');; 
         }elseif(auth()->user()->level != "1"){
             //dd($request->all());
-            return redirect('/dashboard'); 
+            return redirect('/customer'); 
         }else{
             return $next($request);
         }

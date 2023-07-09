@@ -17,7 +17,7 @@ use App\Http\Controllers\SalesController;
 */
 
 
-Route::get('/login',[LoginController::class,'home'])->name('login');
+Route::get('/',[LoginController::class,'home'])->name('login');
 
 // Route::get('/program',[MarketingController::class,'program'])->name('program');
 // Route::post('/program',[MarketingController::class,'saveProgram'])->name('saveProgram');
